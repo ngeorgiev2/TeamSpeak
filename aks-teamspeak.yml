@@ -1,0 +1,63 @@
+# apiVersion: v1
+# kind: Pod
+# metadata:
+#   name: teamspeak
+#   labels:
+#     env: test
+# spec:
+#   containers:
+#   - name: teamspeak
+#     image: myacrgeorgata.azurecr.io/teamspeak:40
+#     ports:
+#     - containerPort: 9987
+#     - containerPort: 10011
+#     - containerPort: 30033
+#     env:
+#       # define value directly 
+#       - name: TS3SERVER_LICENSE
+#         value: "accept"
+#   imagePullSecrets:
+#   - name: myacrgeorgata
+# ---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: teamspeak-deployment
+  labels:
+    app: teamspeak
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: teamspeak
+  template:
+    metadata:
+      labels:
+        app: teamspeak
+    spec:
+      containers:
+      - name: teamspeak
+        image: myacrgeorgata.azurecr.io/teamspeak:40
+        ports:
+        - containerPort: 9987
+        - containerPort: 10011
+        - containerPort: 30033
+        env:
+          # define value directly 
+          - name: TS3SERVER_LICENSE
+            value: "accept"
+      imagePullSecrets:
+      - name: myacrgeorgata
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: teamspeak-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: teamspeak
+  ports:
+  - protocol: UDP
+    port: 9987
+    targetPort: 9987
